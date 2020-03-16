@@ -130,7 +130,7 @@ client.on('message', msg => {
       // guild exists, check if channel exists in guild
       if (data.notify[guildID].hasOwnProperty(channelID)) {
         // Channel exists, remove channel
-        delete notifyList[guildID][channelID]
+        delete data.notify[guildID][channelID]
         msg.reply('New case notifications disabled for current channel')
       } else {
         // Channel does not exist, add channel
