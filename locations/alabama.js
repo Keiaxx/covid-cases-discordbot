@@ -8,7 +8,7 @@ class DataLocation {
   // lastUpdated: 'unixtime'
   // total: 6
   // locations: [
-  //     { name: 'Jefferson', cases: 6 }
+  //     { county: 'Jefferson', cases: 6 }
   // ]
   static async getData () {
     return new Promise((resolve, reject) => {
