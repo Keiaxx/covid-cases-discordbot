@@ -9,6 +9,9 @@ const Discord = require('discord.js')
 const client = new Discord.Client()
 const config = require('./config')
 
+// Global api
+const axios = require('axios')
+
 // Cache and persistence stuff
 let latestCachedData = []
 let data = {
@@ -43,7 +46,7 @@ function saveData () {
   })
 }
 
-function notifySubscribers(name, lastCount, newCount){
+function notifySubscribers (name, lastCount, newCount) {
   let guilds = Object.keys(data.notify)
 
   guilds.forEach(gid => {
@@ -62,14 +65,14 @@ async function loadSourceData () {
     let name = location.name
     let total = location.total
 
-    if(data.lastCounts.hasOwnProperty(name)){
-      console.log("Location exists in memory, checking count status...")
+    if (data.lastCounts.hasOwnProperty(name)) {
+      console.log('Location exists in memory, checking count status...')
       let lastCountForName = data.lastCounts[name]
 
-      if(total === lastCountForName){
+      if (total === lastCountForName) {
         // Count has not changed, do not do anything for now
         console.log(`${name} | no change ${total}`)
-      }else{
+      } else {
         // Count has changed, save new data and trigger notification events
         console.log(`${name} | count updated ${lastCountForName} -> ${total}`)
         data.lastCounts[name] = total
@@ -77,9 +80,9 @@ async function loadSourceData () {
         saveData()
       }
 
-    }else{
+    } else {
       // location not yet in lastcount memory, init and save
-      console.log("Location does not exist in memory, adding location and count values")
+      console.log('Location does not exist in memory, adding location and count values')
       data.lastCounts[name] = total
       saveData()
     }
@@ -92,7 +95,7 @@ client.on('ready', () => {
   loadSourceData()
 })
 
-client.on('message', msg => {
+client.on('message', async msg => {
   // cases command, show only total
   if (msg.content === config.prefix + 'cases') {
     latestCachedData.forEach(location => {
@@ -103,7 +106,7 @@ client.on('message', msg => {
   // detailedcases (dcases) command, shows counties also
   if (msg.content === config.prefix + 'dcases') {
     latestCachedData.forEach(location => {
-      let locationText = ""
+      let locationText = ''
       location.locations.forEach(county => {
         let countyName = county.county
         let countyCases = county.cases
@@ -111,12 +114,22 @@ client.on('message', msg => {
         locationText += `${countyName} | ${countyCases}\n`
       })
 
-      let finalMessage = `\`\`\`${locationText}\nTotal: ${location.total}\nLast Update: ${location.lastUpdated}\`\`\``;
+      let finalMessage = `\`\`\`${locationText}\nTotal: ${location.total}\nLast Update: ${location.lastUpdated}\`\`\``
 
       msg.reply(finalMessage)
     })
+  }
 
+  // global command
+  if (msg.content === config.prefix + 'overview') {
+    console.log('Displaying overview')
+    let response = await axios.get("https://covid19.mathdro.id/api/og", {responseType: 'arraybuffer'})
 
+    let imageBuffer = Buffer.from(response.data, 'binary')
+
+    const attachment = new Discord.MessageAttachment(imageBuffer, 'covid.jpg')
+
+    msg.channel.send('COVID Overview', attachment)
   }
 
   // notify command
