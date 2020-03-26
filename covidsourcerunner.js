@@ -69,15 +69,15 @@ async function loadSourceData () {
       console.log('Location exists in memory, checking count status...')
       let lastCountForName = data.lastCounts[name]
 
-      if (total === lastCountForName) {
-        // Count has not changed, do not do anything for now
-        console.log(`${name} | no change ${total}`)
-      } else {
+      if (total > lastCountForName) {
         // Count has changed, save new data and trigger notification events
         console.log(`${name} | count updated ${lastCountForName} -> ${total}`)
         data.lastCounts[name] = total
         notifySubscribers(name, lastCountForName, total)
         saveData()
+      } else {
+        // Count has not changed, do not do anything for now
+        console.log(`${name} | no change ${total}`)
       }
 
     } else {
