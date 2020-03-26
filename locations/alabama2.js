@@ -4,7 +4,7 @@ const deathsEndpoint = 'https://services7.arcgis.com/4RQmZZ0yaZkGR1zy/arcgis/res
 const locationName = 'Alabama'
 
 const axios = require('axios')
-const moment = require('moment')
+const moment = require('moment-timezone')
 
 class DataLocation {
   // Do whatever you need to get the return format like below:
@@ -20,7 +20,7 @@ class DataLocation {
     return new Promise(async (resolve, reject) => {
       let format = {
         name: locationName,
-        lastUpdated: moment().format('MMMM Do YYYY, h:mm:ss a'),
+        lastUpdated: moment().tz('America/Chicago').format('MMMM Do YYYY, h:mm:ss a') + " (CT)",
         total: 0,
         totaldeaths: 0,
         locations: []
