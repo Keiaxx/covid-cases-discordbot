@@ -1,9 +1,9 @@
 const CovidSources = require('./covidsource').CovidSources
 const sources = new CovidSources()
-const sourceRefreshSeconds = 60
+const sourceRefreshSeconds = 300
 const jsonfile = require('jsonfile')
 const file = './data.json'
-
+const fws = require('fixed-width-string')
 // Discord stuff
 const Discord = require('discord.js')
 const client = new Discord.Client()
@@ -99,19 +99,22 @@ client.on('message', async msg => {
   // cases command, show only total
   if (msg.content === config.prefix + 'cases') {
     latestCachedData.forEach(location => {
-      msg.reply('There are ' + location.total + ' cases in ' + location.name + ' as of ' + location.lastUpdated)
+      msg.reply(`There are ${location.total} cases, and ${location.totaldeaths} deaths in ${location.name} as of ${location.lastUpdated}`)
     })
   }
 
   // detailedcases (dcases) command, shows counties also
   if (msg.content === config.prefix + 'dcases') {
     latestCachedData.forEach(location => {
-      let locationText = ''
+      let locationText = 'Showing top 15 counties\n\n'
+
+      locationText += `${fws('County', 12)} | ${fws('Cases', 5)} | ${fws('Deaths', 8)}\n`
       location.locations.forEach(county => {
         let countyName = county.county
         let countyCases = county.cases
+        let countyDeaths = county.deaths
 
-        locationText += `${countyName} | ${countyCases}\n`
+        locationText += `${fws(countyName, 12)} | ${fws(countyCases, 5)} | ${fws(countyDeaths, 8)}\n`
       })
 
       let finalMessage = `\`\`\`${locationText}\nTotal: ${location.total}\nLast Update: ${location.lastUpdated}\`\`\``

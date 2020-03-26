@@ -1,3 +1,3 @@
 exports.locations = [
-  require('./alabama')
+  require('./alabama2')
 ]
